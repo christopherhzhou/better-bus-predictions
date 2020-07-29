@@ -9,3 +9,5 @@ and machine learning.
 - 34
 - 39
 - 57
+
+This project uses the Google's Python docstring format.

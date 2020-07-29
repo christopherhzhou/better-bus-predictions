@@ -4,35 +4,36 @@ from .constants.apikey import key
 
 
 class BusDataUtil:
-    """
-    Class methods:
-    - get_bus_data(bus_id)
-    - get_departing_buses(stop_id, route_id, direction_id)
-    - get_stops_list(trip_id)
+    """Contains static methods for retrieving bus data.
+
+    No __init__ method since it is not necessary to create
+    an instance of BusDataUtil to use data utility methods.
     
     """
+
     @staticmethod
     def get_bus_data(bus_id):
         """Returns a dictionary with bus data.
         
         Args:
-        - bus_id (str): ID of bus
+            bus_id (str): ID of bus
         
         Returns:
-        - dictionary: Contains data of bus with given ID.
-        Looks something like this if data was successfully retrieved: 
-        {
-            'response_status_code': 200,
-            'response_url': 'a.friendly.url',
-            'trip_id': '123',
-            'direction': '1',
-            'stop_sequence': '6',
-            'latitude': '43.331212827',
-            'longitude': '-71.1982703',
-            'stop_id': '23391',
-            'updated_at': 'some-time'
-        }
-        - None: If bus data could not be retrieved.
+            A dictionary containing data of bus with given ID.
+            - Ideal data returned example:
+            {
+                'response_status_code': 200,
+                'response_url': 'a.friendly.url',
+                'trip_id': '123',
+                'direction': '1',
+                'stop_sequence': '6',
+                'latitude': '43.331212827',
+                'longitude': '-71.1982703',
+                'stop_id': '23391',
+                'updated_at': 'some-time'
+            }
+
+            None: If bus data could not be retrieved.
         
         """
         payload = {
@@ -68,26 +69,26 @@ class BusDataUtil:
         """Returns a dictionary with departing buses.
         
         Args:
-        - stop_id (str): ID of stop to get departing buses from.
-        - route_id (str): ID of route bus should be on at departure.
-        - direction_id (str): ID of direction that bus should be departing in.
+            stop_id (str): ID of stop to get departing buses from.
+            route_id (str): ID of route bus should be on at departure.
+            direction_id (str): ID of direction that bus should be departing in.
         
         Returns:
-        - dictionary: A dictionary with bus IDs as keys and their respective trip IDs
-        and departure times as additional info per object.
-        Ideal data returned example: 
-        {
-            'y1234': {
-                'trip_id': '098',
-                'departure_time': '12:34'
-            },
-            'y5678': {
-                'trip_id': '765',
-                'departure_time': '12:56'
+            A dictionary with bus IDs as keys and their respective trip IDs
+            and departure times as additional info per object.
+            - Ideal data returned example:
+            {
+                'y1234': {
+                    'trip_id': '098',
+                    'departure_time': '12:34'
+                },
+                'y5678': {
+                    'trip_id': '765',
+                    'departure_time': '12:56'
+                }
             }
-        
-        }
-        - None: If data could not be retrieved.
+
+            None: If data could not be retrieved.
         
         """
         payload = {
@@ -115,18 +116,22 @@ class BusDataUtil:
     @staticmethod
     def get_stops_list(trip_id):
         """Returns a list of stop IDs for a given trip ID.
+
+        This method is deprecated. Use "get_trip_info(trip_id)['stops']" instead.
         
         Args:
-        - trip_id: ID for a trip with desired route stops.
+            trip_id: ID for a trip with desired route stops.
         
         Returns:
-        - list: A list containing the stop IDs for all stops in order of the trip.
-        Ideal data returned example: [
-            '1234',
-            '5678',
-            '9012'
-        ]
-        - None: If data could not be retrieved.
+            A list containing the stop IDs for all stops along the given trip.
+            Stops are in order as they appear on the trip.
+            - Ideal data returned example: [
+                '1234',
+                '5678',
+                '9012'
+            ]
+
+            None: If data could not be retrieved.
         
         """
         payload = {
@@ -148,41 +153,47 @@ class BusDataUtil:
 
     @staticmethod
     def get_trip_info(trip_id):
-        """Returns info on a given trip ID.
-        
+        """Returns information for a given trip.
+
         Args:
-        - trip_id: ID for a trip with desired route stops.
-        
+            trip_id: ID of desired trip.
+
         Returns:
-        - dictionary: Contains:
+            A dictionary, containing...
             - 'stops': A list with the stop IDs for all stops in order of the trip.
-            Ideal data returned example: [
-                '1234',
-                '5678',
-                '9012'
-            ]
-            - 'route_id': ID of route trip is on.
-            - 'direction_id': ID of direction trip is in.
-        - None: If data could not be retrieved.
-        
+            - 'route': ID of route trip is on.
+            - 'direction': ID of direction trip is in.
+            Data returned example:
+            {
+                'stops': [
+                    '1234',
+                    '5678',
+                    '9012'
+                ],
+                'route': '39',
+                'direction': '1'
+            }
+
+            None: If data could not be retrieved.
+
         """
         payload = {
             'include': 'stops',
             'api_key': key
         }
-        
+
         response = requests.get('https://api-v3.mbta.com/trips/{}'.format(trip_id), params=payload)
-        
+
         if response.status_code == 200 and response.json()['data']['relationships']['stops'].get('data'):
             data = {
                 'route_id': response.json()['data']['relationships']['route']['data']['id'],
                 'direction_id': response.json()['data']['attributes']['direction_id'],
                 'stops': []
             }
-            
+
             stops_list = response.json()['data']['relationships']['stops'].get('data')
-            
+
             for stop in stops_list:
                 data['stops'].append(stop['id'])
-        
+
             return data
