@@ -62,8 +62,7 @@ class BusDataUtil:
             bus_data['updated_at'] = response_data['attributes']['updated_at']
     
         return bus_data
-        
-        
+
     @staticmethod 
     def get_departing_buses(stop_id, route_id, direction_id):
         """Returns a dictionary with departing buses.
@@ -112,8 +111,7 @@ class BusDataUtil:
                     }
                     
             return departures
-                    
-            
+
     @staticmethod
     def get_stops_list(trip_id):
         """Returns a list of stop IDs for a given trip ID.
@@ -147,8 +145,7 @@ class BusDataUtil:
                 stops.append(stop['id'])
         
             return stops
-            
-            
+
     @staticmethod
     def get_trip_info(trip_id):
         """Returns info on a given trip ID.
@@ -189,7 +186,3 @@ class BusDataUtil:
                 data['stops'].append(stop['id'])
         
             return data
-            
-            
-# if __name__ == '__main__':
-#     print(BusDataUtil.get_departing_buses('23391', '39', '0'))

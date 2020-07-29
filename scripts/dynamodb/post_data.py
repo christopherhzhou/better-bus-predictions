@@ -1,17 +1,12 @@
 import boto3
 
 
-def post_data(data):
-    table_name = 'rte-{rte}-d{d}'.format(rte=data['route'],d=data['direction'])
+def post_data(data, route, direction):
+    table_name = 'rte-{rte}-d{d}'.format(rte=route, d=direction)
     
     dynamodb = boto3.resource('dynamodb')
-    
-    DB = boto3.resource('dynamodb')
-    table = DB.Table(table_name)
-    
-    data.pop('route')
-    data.pop('direction')
+    table = dynamodb.Table(table_name)
     
     response = table.put_item(Item=data)
         
-    print(response["ResponseMetadata"]["HTTPStatusCode"])
+    print('POST status:', response["ResponseMetadata"]["HTTPStatusCode"])

@@ -1,19 +1,14 @@
 import boto3
 
-__TableName__ = 'rte-34-d1'
-Primary_Column_Name = 'tripId'
-Primary_Key = '1'
-columns = ['arriveDest', 'departOrigin']
 
-dynamodb = boto3.resource('dynamodb')
+def get_data(trip_id, route_id, direction_id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('rte-{}-d{}'.format(route_id, direction_id))
 
-DB = boto3.resource('dynamodb')
-table = DB.Table(__TableName__)
+    response = table.get_item(
+            Key={
+                'tripId': trip_id
+            }
+        )
 
-response = table.get_item(
-        Key={
-            Primary_Column_Name: Primary_Key
-        }
-    )
-    
-print(response["Item"])
+    print(response["Item"])

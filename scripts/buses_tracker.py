@@ -4,6 +4,8 @@ from .bus_tracker import BusTracker
 from .api.busutil import BusDataUtil
 from .dynamodb.post_data import post_data
 
+
+#TODO Make variables private
 class BusesTracker:
     
     def __init__(self, origin_terminus_id, route_id, direction_id):
@@ -17,15 +19,17 @@ class BusesTracker:
         
         for bus_id in self.buses:
             if BusDataUtil.get_stops_list(self.buses[bus_id]['trip_id']):
-                self.bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], route_id, direction_id))
-        
+                self.bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], route_id))
         
     def run(self):
         while True:
-            for counter in range(40):
+            for _ in range(40):
                 for bus in self.bus_trackers:
                     if bus.status == 'AT_DEST_TERMINUS':
-                        post_data(bus.get_recorded_data())
+                        post_data(bus.get_recorded_data(), self.route, self.direction)
+                        self.buses.pop(bus.bus_id)
+                        self.bus_trackers.remove(bus)
+                    elif bus.status == 'ERROR':
                         self.buses.pop(bus.bus_id)
                         self.bus_trackers.remove(bus)
                     else:
@@ -39,7 +43,4 @@ class BusesTracker:
                         'trip_id': new_buses[bus_id]['trip_id'],
                         'departure_time': new_buses[bus_id]['departure_time']
                     }
-                    self.bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], self.route, self.direction))
-                    
-        
-        
+                    self.bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], self.route))
