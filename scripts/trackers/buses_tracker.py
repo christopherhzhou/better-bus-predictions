@@ -1,8 +1,8 @@
 from time import sleep
 
 from .bus_tracker import BusTracker
-from .api.busutil import BusDataUtil
-from .dynamodb.post_data import post_data
+from scripts.api.busutil import BusDataUtil
+from scripts.dynamodb.post_data import post_data
 
 
 #TODO Make variables private

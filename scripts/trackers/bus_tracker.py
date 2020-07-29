@@ -1,7 +1,7 @@
-from .api.busutil import BusDataUtil
-from .api.locutil import BusLocationUtil
+from scripts.api.busutil import BusDataUtil
+from scripts.api.locutil import BusLocationUtil
 
-from .api.constants.stop_distance_thresholds import StopDistanceThresholds
+from scripts.api.constants.stop_distance_thresholds import StopDistanceThresholds
 
 
 # assumes that a bus is either at or soon to arrive at origin terminus station
@@ -28,7 +28,7 @@ class BusTracker:
             self.status = 'SOON_ARRIVING_ORIGIN_TERMINUS'
 
         self.data = {
-            'tripId': trip_id,
+            'tripId': int(trip_id),
             'stops': {}
         }
 
@@ -83,11 +83,12 @@ class BusTracker:
                     # detected to have been near a stop
                     print('---- STOP SKIPPED - INFO BELOW ----')
                     self.__print_info(bus_data['latitude'], bus_data['longitude'], bus_data['updated_at'])
-                    print('API determined nearest stop:', at_stop)
+                    print('API determined nearest stop:', BusLocationUtil.get_stop_name(at_stop))
+                    print('Known last-at stop:', BusLocationUtil.get_stop_name(self.__stops[self.__last_at_stop_idx]))
 
                     # iterates through all the stops between the current possible stop the bus could be at all the way
                     # until the destination terminus
-                    for stop_idx in range(self.__last_at_stop_idx + 1, self.__dest_terminus_idx + 1):
+                    for stop_idx in range(self.__last_at_stop_idx + 2, self.__dest_terminus_idx + 1):
                         if stop_idx < self.__dest_terminus_idx and at_stop == self.__stops[stop_idx]:
                             # if this condition below is not true, is it possible another stop skip will be detected
                             # again - however, after the second iteration all skip errors should be resolved
@@ -96,10 +97,10 @@ class BusTracker:
                                 self.data['stops'][at_stop] = {
                                     'arrived': bus_data['updated_at']
                                 }
-                                print('Last skipped stop is {}, skip error resolved'.format(self.__stops[stop_idx - 1]))
+                                print('Last skipped stop is {}, skip error resolved'.format(BusLocationUtil.get_stop_name(self.__stops[stop_idx - 1])))
 
                             self.__last_at_stop_idx = stop_idx - 1
-                            print('Last-at stop is now registered as', self.__stops[self.__last_at_stop_idx])
+                            print('Last-at stop is now registered as', BusLocationUtil.get_stop_name(self.__stops[self.__last_at_stop_idx]))
                             break
 
                         elif stop_idx == self.__dest_terminus_idx and at_stop == self.dest_terminus:
@@ -133,7 +134,7 @@ class BusTracker:
                 self.__print_info(bus_data['latitude'], bus_data['longitude'], bus_data['updated_at'])
 
         else:
-            #TODO implement strike system so if retrieving bus data returns multiple errors, set status to "ERROR"
+            # TODO implement strike system so if retrieving bus data returns multiple errors, set status to "ERROR"
             print('Status code:', bus_data['response_status_code'])
 
     def get_recorded_data(self):

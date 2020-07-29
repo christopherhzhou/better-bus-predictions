@@ -1,6 +1,6 @@
 import threading
 
-from scripts.buses_tracker import BusesTracker
+from scripts.trackers.buses_tracker import BusesTracker
 
 
 def record_data(origin_terminus_id, route_id, direction_id):

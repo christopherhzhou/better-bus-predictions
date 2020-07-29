@@ -9,6 +9,13 @@ from .constants.apikey import key
 
 
 class BusLocationUtil:
+    @staticmethod
+    def get_stop_name(stop_id):
+        payload = {'api_key': key}
+        response = requests.get('https://api-v3.mbta.com/stops/{}'.format(stop_id), params=payload)
+
+        if response.status_code == 200:
+            return response.json()['data']['attributes']['name']
 
     @staticmethod
     def get_stop_coords(stop_id):
