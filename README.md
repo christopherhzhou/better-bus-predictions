@@ -10,4 +10,4 @@ and machine learning.
 - 39
 - 57
 
-This project uses the Google's Python docstring format.
+This project uses Google's Python docstring format.
