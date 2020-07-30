@@ -102,7 +102,7 @@ class BusStopUtil:
 
         """
         if stop_id:
-            bus_coords = (bus_latitude, bus_longitude)
+            bus_coords = (float(bus_latitude), float(bus_longitude))
             stop_coords = BusStopUtil.get_stop_coords(stop_id)
 
             if stop_coords:
