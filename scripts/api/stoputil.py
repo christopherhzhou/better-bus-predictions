@@ -85,7 +85,6 @@ class BusStopUtil:
             else:
                 print('There was an error retrieving stop info')
 
-
     @staticmethod
     def is_near_stop(bus_latitude, bus_longitude, stop_id, distance_threshold=50):
         """Determines if a bus is near a stop.
@@ -103,12 +102,10 @@ class BusStopUtil:
 
         """
         if stop_id:
-            print(type(bus_latitude))
             bus_coords = (bus_latitude, bus_longitude)
             stop_coords = BusStopUtil.get_stop_coords(stop_id)
 
             if stop_coords:
-                print(distance(bus_coords, stop_coords).m)
                 return distance(bus_coords, stop_coords).m < distance_threshold
 
         return False
