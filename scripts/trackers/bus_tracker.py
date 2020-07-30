@@ -1,7 +1,7 @@
-from scripts.api.busutil import BusDataUtil
-from scripts.api.stoputil import BusStopUtil
+from scripts.api.mbta.busutil import BusDataUtil
+from scripts.api.mbta.stoputil import BusStopUtil
 
-from scripts.api.constants.stop_distance_thresholds import StopDistanceThresholds
+from scripts.api.mbta.constants import StopDistanceThresholds
 
 
 # TODO write docstring
