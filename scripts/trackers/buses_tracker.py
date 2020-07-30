@@ -19,13 +19,15 @@ class BusesTracker:
         
         for bus_id in self.buses:
             if BusDataUtil.get_stops_list(self.buses[bus_id]['trip_id']):
-                self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], route_id))
+                self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
         
     def run(self):
         while True:
+            bus_ids = self.buses.keys()
             for _ in range(40):
+                buses_data = BusDataUtil.get_buses_data(bus_ids)
                 for bus in self.__bus_trackers:
-                    bus.update()
+                    bus.update(buses_data.get(bus.bus_id))
                     if bus.status == 'AT_DEST_TERMINUS':
                         post_data(bus.get_recorded_data(), self.route, self.direction)
                         self.buses.pop(bus.bus_id)
@@ -44,4 +46,4 @@ class BusesTracker:
                         'trip_id': new_buses[bus_id]['trip_id'],
                         'departure_time': new_buses[bus_id]['departure_time']
                     }
-                    self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id'], self.route))
+                    self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
