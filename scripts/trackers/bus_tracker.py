@@ -1,7 +1,7 @@
 from scripts.api.mbta.busutil import BusDataUtil
 from scripts.api.mbta.stoputil import BusStopUtil
-
-from scripts.api.mbta.constants import StopDistanceThresholds
+from scripts.api.other.gmaputil import GMapsUtil
+from scripts.api.mbta.constants.stop_distance_thresholds import StopDistanceThresholds
 
 
 # TODO write docstring
@@ -14,6 +14,7 @@ class BusTracker:
         trip_info = BusDataUtil.get_trip_info(trip_id)
 
         self.route_id = trip_info.get('route_id')
+        self.direction_id = trip_info.get('direction_id')
 
         self.__stops = trip_info['stops']
         self.__dest_terminus_idx = len(self.__stops) - 1
@@ -59,6 +60,7 @@ class BusTracker:
                     'departed': bus_data['updated_at']
                 }
                 self.data['departOrigin'] = bus_data['updated_at']
+                self.data['gmapsEstimate'] = GMapsUtil.get_gmaps_estimate(self.route_id, self.direction_id)
 
                 # print info
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
@@ -134,6 +136,7 @@ class BusTracker:
                 self.data['stops'][self.dest_terminus] = {
                     'arrived': bus_data['updated_at']
                 }
+                self.data['arriveDest'] = bus_data['updated_at']
                 
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
 

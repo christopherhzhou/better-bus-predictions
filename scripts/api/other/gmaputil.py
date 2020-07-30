@@ -9,7 +9,6 @@ from scripts.api.mbta.stoputil import BusStopUtil
 
 
 class GMapsUtil:
-
     @staticmethod
     def get_gmaps_estimate(route_id, direction_id):
         route_id = str(route_id)
@@ -43,7 +42,6 @@ class GMapsUtil:
             response = requests.get('https://maps.googleapis.com/maps/api/directions/json?', params=payload)
 
             if response.status_code == 200:
-                print(response.json())
                 return response.json()['routes'][0]['legs'][0]['duration'].get('value')
 
             else:
