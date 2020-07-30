@@ -119,11 +119,11 @@ class BusDataUtil:
 
         if buses_data.get('response_status_code') == 200:
             response_data = response.json()['data']
-            response_bus_ids = [data.get('id') for data in response_data]
+            id_to_index_map = {data.get('id'): index for index, data in enumerate(response_data)}
 
-            for index, bus_id in enumerate(bus_ids):
-                if bus_id in response_bus_ids:
-                    bus_data = response_data[index]
+            for bus_id in bus_ids:
+                if bus_id in id_to_index_map.keys():
+                    bus_data = response_data[id_to_index_map[bus_id]]
 
                     buses_data[bus_id] = {
                         'direction': bus_data['attributes'].get('direction_id'),
