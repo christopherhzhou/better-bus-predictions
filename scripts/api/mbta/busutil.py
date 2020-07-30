@@ -1,6 +1,6 @@
 import requests
 
-from scripts.api.constants.apikey import key
+from scripts.api.mbta.constants.apikey import key
 
 
 class BusDataUtil:

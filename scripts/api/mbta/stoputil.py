@@ -1,11 +1,10 @@
-import ast
 import json
 from pathlib import Path
 
 from geopy.distance import distance
 import requests
 
-from scripts.api.constants.apikey import key
+from scripts.api.mbta.constants.apikey import key
 
 
 class BusStopUtil:
@@ -45,7 +44,7 @@ class BusStopUtil:
         """Returns the coordinates of a bus stop with given ID.
 
         Since stop coordinates are frequently used, this method
-        opens the constants/stop_coords.txt file to efficiently obtain
+        opens the constants/stop_coords.json file to efficiently obtain
         stop coordinates without the need to make a request to the API
         each time.
 
@@ -58,10 +57,10 @@ class BusStopUtil:
         """
         stop_id = str(stop_id)
 
-        file_path = Path(__file__).parent.resolve() / 'constants' / 'stop_coords.txt'
+        file_path = Path(__file__).parent.resolve() / 'constants' / 'stop_coords.json'
         with open(file_path, 'r') as f:
             contents = f.read()
-        stops_dict = ast.literal_eval(contents)
+        stops_dict = json.loads(contents)
 
         if stop_id in stops_dict:
             return stops_dict.get(stop_id)[0], stops_dict.get(stop_id)[1]

@@ -1,6 +1,7 @@
-from scripts.api.stoputil import BusStopUtil
-from scripts.api.busutil import BusDataUtil
+from scripts.api.mbta.busutil import BusDataUtil
+from scripts.api.mbta.stoputil import BusStopUtil
+from scripts.api.other.gmaputil import GMapsUtil
 
 
 if __name__ == '__main__':
-    print(BusDataUtil.get_buses_data(['y1218',None,'2983489027342']))
+    print(GMapsUtil.get_gmaps_estimate('39','0'))
