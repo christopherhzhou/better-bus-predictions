@@ -128,8 +128,8 @@ class BusDataUtil:
                     buses_data[bus_id] = {
                         'direction': bus_data['attributes'].get('direction_id'),
                         'stop_sequence': bus_data['attributes'].get('current_stop_sequence'),
-                        'latitude': bus_data['attributes'].get('current_stop_sequence'),
-                        'longitude': bus_data['attributes'].get('current_stop_sequence'),
+                        'latitude': bus_data['attributes'].get('latitude'),
+                        'longitude': bus_data['attributes'].get('longitude'),
                         'updated_at': bus_data['attributes'].get('updated_at'),
                     }
 
