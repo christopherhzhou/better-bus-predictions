@@ -1,5 +1,6 @@
 from scripts.api.stoputil import BusStopUtil
+from scripts.api.busutil import BusDataUtil
 
 
 if __name__ == '__main__':
-    print(BusStopUtil.is_near_stop('42.270041', '-71.147130', '626'))
+    print(BusDataUtil.get_trip_info(44813439))

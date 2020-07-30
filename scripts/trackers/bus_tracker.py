@@ -8,13 +8,14 @@ from scripts.api.constants.stop_distance_thresholds import StopDistanceThreshold
 # assumes that a bus is either at or soon to arrive at origin terminus station
 class BusTracker:
 
-    def __init__(self, bus_id, trip_id, route_id):
+    def __init__(self, bus_id, trip_id):
         self.bus_id = bus_id
-        self.route_id = route_id
-        
-        bus_data = BusDataUtil.get_bus_data(bus_id)
-        
-        self.__stops = BusDataUtil.get_stops_list(trip_id)
+
+        trip_info = BusDataUtil.get_trip_info(trip_id)
+
+        self.route_id = trip_info.get('route_id')
+
+        self.__stops = trip_info['stops']
         self.__dest_terminus_idx = len(self.__stops) - 1
         self.origin_terminus = self.__stops[0]
         self.dest_terminus = self.__stops[self.__dest_terminus_idx]
@@ -25,6 +26,7 @@ class BusTracker:
         self.__origin_stop_distance_threshold = StopDistanceThresholds.get(self.origin_terminus) if StopDistanceThresholds.get(self.origin_terminus) else 80
         self.__dest_stop_distance_threshold = StopDistanceThresholds.get(self.dest_terminus) if StopDistanceThresholds.get(self.dest_terminus) else 80
 
+        bus_data = BusDataUtil.get_bus_data(bus_id)
         if BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus, distance_threshold=self.__origin_stop_distance_threshold):
             self.status = 'AT_ORIGIN_TERMINUS'
         else:
@@ -35,13 +37,10 @@ class BusTracker:
             'stops': {}
         }
 
-        print('RTE{rte}: now tracking bus with id {bid} and tripid {tid}, status {sts}'.format(rte=route_id, bid=bus_id, tid=trip_id, sts=self.status))
+        print('rte{rte}: now tracking bus with ID {bid}, trip ID {tid}, status {sts}'.format(rte=self.route_id, bid=bus_id, tid=trip_id, sts=self.status))
 
-    def update(self):
-        bus_data = BusDataUtil.get_bus_data(self.bus_id)
-
-        if bus_data['response_status_code'] == 200:
-
+    def update(self, bus_data):
+        if bus_data:
             # if bus is known to be soon arriving at origin terminus and it is found to be near origin terminus
             if self.status == 'SOON_ARRIVING_ORIGIN_TERMINUS' and BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus, distance_threshold=self.__origin_stop_distance_threshold):
                 # update status
@@ -122,7 +121,7 @@ class BusTracker:
                             print('-----------------------------------')
                             break
 
-            elif self.status == 'NEAR_STOP' and not BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.__stops[self.__last_at_stop_idx+1]):
+            elif self.status == 'NEAR_STOP' and not BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.__stops[self.__last_at_stop_idx + 1]):
                 self.__last_at_stop_idx += 1
                 self.data['stops'][self.__stops[self.__last_at_stop_idx]]['departed'] = bus_data['updated_at']
                 if self.__last_at_stop_idx == self.__dest_terminus_idx - 1:
@@ -139,11 +138,8 @@ class BusTracker:
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
 
         else:
-            # TODO implement strike system so if retrieving bus data returns multiple errors, set status to "ERROR"
+            print('Received None for bus data')
             self.__error_strikes += 1
-
-            print(f'GET error: rte{self.route_id}, bID: {self.bus_id}, status {self.status}')
-            print(f'Status code: {bus_data.get("response_status_code")}, strike {self.__error_strikes}')
 
             if self.__error_strikes == 3:
                 self.status = 'ERROR'
