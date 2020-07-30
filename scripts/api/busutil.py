@@ -139,9 +139,6 @@ class BusDataUtil:
                     if bus_data['relationships']['trip']['data']:
                         buses_data[bus_id]['trip_id'] = bus_data['relationships']['trip']['data']['id']
 
-                else:
-                    index -= 1
-
         else:
             print('An error occurred when attempting to retrieve any bus data.')
             print('Status code: {}'.format(buses_data.get('response_status_code')))
