@@ -48,7 +48,7 @@ class BusTracker:
                 self.status = 'AT_ORIGIN_TERMINUS'
 
                 # print info
-                self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
+                print(f'{self.bus_id} now {self.status}')
 
             # if bus is known to be at origin terminus but is no longer near origin terminus...
             elif self.status == 'AT_ORIGIN_TERMINUS' and not BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus, distance_threshold=self.__origin_stop_distance_threshold):

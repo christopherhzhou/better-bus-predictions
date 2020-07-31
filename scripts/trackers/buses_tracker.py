@@ -59,7 +59,7 @@ class BusesTracker:
                     self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
 
             time_now = datetime.datetime.now()
-            for bus_id in self.__error_dict:
+            for bus_id in list(self.__error_dict):
                 if self.__error_dict.get(bus_id) < time_now:
                     self.__error_dict.pop(bus_id)
                     print(f'Removing bus {bus_id} from error dict')

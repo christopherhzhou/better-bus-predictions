@@ -37,13 +37,14 @@ class GMapsUtil:
                 'origin': f'{origin_lat},{origin_long}',
                 'destination': f'{dest_lat},{dest_long}',
                 'waypoints': 'via:' + waypoints_str,
+                'departure_time': 'now',
+                'traffic_model': 'best_guess',
                 'key': key
             }
             response = requests.get('https://maps.googleapis.com/maps/api/directions/json?', params=payload)
 
             if response.status_code == 200:
-                return response.json()['routes'][0]['legs'][0]['duration'].get('value')
-
+                return response.json()['routes'][0]['legs'][0]['duration_in_traffic'].get('value')
             else:
                 print('Non-200 status code when requesting to the GMaps API:', response.status_code)
 
