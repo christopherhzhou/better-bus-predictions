@@ -63,6 +63,7 @@ class BusTracker:
                 self.data['gmapsEstimate'] = GMapsUtil.get_gmaps_estimate(self.route_id, self.direction_id)
 
                 # print info
+                print(f'GMaps estimate for {self.bus_id}:', self.data.get('gmapsEstimate'))
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
 
             # if bus is in transit...
@@ -105,7 +106,7 @@ class BusTracker:
 
                             self.__last_at_stop_idx = stop_idx - 1
                             print('Last-at stop is now registered as', BusStopUtil.get_stop_name(self.__stops[self.__last_at_stop_idx]))
-                            print('-----------------------------------')
+                            print('-----------------------------------\n')
                             break
 
                         elif stop_idx == self.__dest_terminus_idx and at_stop == self.dest_terminus:
@@ -120,7 +121,7 @@ class BusTracker:
                                 self.status = 'IN_TRANSIT_TO_DEST'
                                 print('Bus skipped to be in transit to destination terminus {}, skip error resolved'.format(at_stop))
 
-                            print('-----------------------------------')
+                            print('-----------------------------------\n')
                             break
 
             elif self.status == 'NEAR_STOP' and not BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.__stops[self.__last_at_stop_idx + 1]):
@@ -141,7 +142,7 @@ class BusTracker:
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
 
         else:
-            print('Received None for bus data')
+            print(f'Received None for bus {self.bus_id} data')
             self.__error_strikes += 1
 
             if self.__error_strikes == 3:
@@ -154,4 +155,4 @@ class BusTracker:
     def __print_info(self, bus_lat, bus_long, updated_at):
         print(f'rte{self.route_id}, bID: {self.bus_id}, status {self.status}')
         print('timestamp:', updated_at)
-        print(f'location: https://www.google.com/maps/search/?api=1&query={bus_lat},{bus_long}')
+        print(f'location: https://www.google.com/maps/search/?api=1&query={bus_lat},{bus_long}\n')
