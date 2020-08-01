@@ -11,3 +11,4 @@ def post_data(data, route, direction):
     response = table.put_item(Item=data)
         
     print('POST status:', response["ResponseMetadata"]["HTTPStatusCode"])
+    print()

@@ -25,41 +25,41 @@ class BusesTracker:
         for bus_id in self.buses:
             if BusDataUtil.get_stops_list(self.buses[bus_id]['trip_id']):
                 self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
-        
-    def run(self):
-        while True:
-            bus_ids = self.buses.keys()
-            for _ in range(40):
-                buses_data = BusDataUtil.get_buses_data(bus_ids)
-                for bus in self.__bus_trackers:
-                    bus.update(buses_data.get(bus.bus_id))
-                    if bus.status == 'AT_DEST_TERMINUS':
-                        post_data(bus.get_recorded_data(), self.route, self.direction)
-                        self.buses.pop(bus.bus_id)
-                        self.__bus_trackers.remove(bus)
-                    elif bus.status == 'ERROR':
-                        print(f'BusesTracker: Moving bus {bus.bus_id} to error list for at least 10 minutes...')
 
-                        time_later = datetime.datetime.now() + datetime.timedelta(minutes=10)
-                        self.__error_dict[bus_id] = time_later
+    def update(self, buses_data):
+        for bus in self.__bus_trackers:
+            bus.update(buses_data.get(bus.bus_id))
+            if bus.status == 'AT_DEST_TERMINUS':
+                post_data(bus.get_recorded_data(), self.route, self.direction)
+                self.buses.pop(bus.bus_id)
+                self.__bus_trackers.remove(bus)
+            elif bus.status == 'ERROR':
+                print(f'BusesTracker: Moving bus {bus.bus_id} to error list for at least 10 minutes...')
 
-                        self.buses.pop(bus.bus_id)
-                        self.__bus_trackers.remove(bus)
+                time_later = datetime.datetime.now() + datetime.timedelta(minutes=10)
+                self.__error_dict[bus.bus_id] = time_later
 
-                        print('BusesTracker: Bus moved to error list')
-                sleep(2)
+                self.buses.pop(bus.bus_id)
+                self.__bus_trackers.remove(bus)
 
-            new_buses = BusDataUtil.get_departing_buses(self.origin_terminus, self.route, self.direction)
-            for bus_id in new_buses:
-                if bus_id not in self.buses and bus_id not in self.__error_dict and BusDataUtil.get_stops_list(new_buses[bus_id]['trip_id']):
-                    self.buses[bus_id] = {
-                        'trip_id': new_buses[bus_id]['trip_id'],
-                        'departure_time': new_buses[bus_id]['departure_time']
-                    }
-                    self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
+                print('BusesTracker: Bus moved to error list')
 
-            time_now = datetime.datetime.now()
-            for bus_id in list(self.__error_dict):
-                if self.__error_dict.get(bus_id) < time_now:
-                    self.__error_dict.pop(bus_id)
-                    print(f'Removing bus {bus_id} from error dict')
+    def check_for_departing_buses(self):
+        new_buses = BusDataUtil.get_departing_buses(self.origin_terminus, self.route, self.direction)
+        for bus_id in new_buses:
+            if bus_id not in self.buses and bus_id not in self.__error_dict and BusDataUtil.get_stops_list(
+                    new_buses[bus_id]['trip_id']):
+                self.buses[bus_id] = {
+                    'trip_id': new_buses[bus_id]['trip_id'],
+                    'departure_time': new_buses[bus_id]['departure_time']
+                }
+                self.__bus_trackers.append(BusTracker(bus_id, self.buses[bus_id]['trip_id']))
+
+        time_now = datetime.datetime.now()
+        for bus_id in list(self.__error_dict):
+            if self.__error_dict.get(bus_id) < time_now:
+                self.__error_dict.pop(bus_id)
+                print(f'Removing bus {bus_id} from error dict')
+
+    def get_bus_ids(self):
+        return self.buses.keys()

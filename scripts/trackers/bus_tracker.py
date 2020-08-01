@@ -1,6 +1,7 @@
 from scripts.api.mbta.busutil import BusDataUtil
 from scripts.api.mbta.stoputil import BusStopUtil
 from scripts.api.other.gmaputil import GMapsUtil
+from scripts.api.other.weatherutil import WeatherUtil
 from scripts.api.mbta.constants.stop_distance_thresholds import StopDistanceThresholds
 
 
@@ -33,8 +34,10 @@ class BusTracker:
         else:
             self.status = 'SOON_ARRIVING_ORIGIN_TERMINUS'
 
+        # setting data points
         self.data = {
             'tripId': int(trip_id),
+            'schedDepartOrigin': BusDataUtil.get_bus_schedule(trip_id, self.origin_terminus).get('depart_time'),
             'stops': {}
         }
 
@@ -61,9 +64,14 @@ class BusTracker:
                 }
                 self.data['departOrigin'] = bus_data['updated_at']
                 self.data['gmapsEstimate'] = GMapsUtil.get_gmaps_estimate(self.route_id, self.direction_id)
+                self.data['currentWeather'] = WeatherUtil.get_weather_at_stop(self.origin_terminus)
 
                 # print info
+                print('-------------------')
+                print(f'ROUTE {self.route_id} BUS {self.bus_id} NOW DEPARTING ORIGIN STOP')
                 print(f'GMaps estimate for {self.bus_id}:', self.data.get('gmapsEstimate'))
+                print(f'Weather at {self.origin_terminus}, origin stop for {self.bus_id}:',
+                      self.data.get('currentWeather'))
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
 
             # if bus is in transit...
@@ -83,6 +91,13 @@ class BusTracker:
                 # this elif checks if there is a discrepancy between the bus's previous stop and the stop it's supposed
                 # to be at according to the API
                 elif self.__stops[self.__last_at_stop_idx] != at_stop and self.__stops[self.__last_at_stop_idx + 1] != at_stop:
+
+                    if at_stop is not None and at_stop not in self.__stops:
+                        print(f'Bus {self.bus_id} is at {BusStopUtil.get_stop_name(at_stop)}, which is not on the list '
+                              f'of stops for this trip.')
+                        print(f'Setting bus {self.bus_id} status to ERROR')
+                        self.status = 'ERROR'
+                        return
 
                     # if this code begins to execute, it already means a rare error has occurred and the bus was not
                     # detected to have been near a stop

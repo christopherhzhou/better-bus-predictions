@@ -1,3 +1,5 @@
+import datetime
+
 import requests
 
 from scripts.api.mbta.constants.apikey import key
@@ -10,6 +12,26 @@ class BusDataUtil:
     an instance of BusDataUtil to use data utility methods.
     
     """
+
+    @staticmethod
+    def get_bus_schedule(trip_id, stop_id):
+        payload = {
+            'filter[trip]': trip_id,
+            'filter[stop]': stop_id,
+            'api_key': key
+        }
+        response = requests.get('https://api-v3.mbta.com/schedules', params=payload)
+        if response.status_code == 200 and response.json().get('data'):
+            return {
+                'arrival_time': response.json()['data'][0]['attributes'].get('arrival_time'),
+                'depart_time': response.json()['data'][0]['attributes'].get('departure_time')
+            }
+        else:
+            print('Getting bus schedule returned non-200 status code of', response.status_code)
+            print('Response json:')
+            print(response.json())
+
+
 
     @staticmethod
     def get_bus_data(bus_id):
@@ -39,7 +61,6 @@ class BusDataUtil:
         payload = {
             'api_key': key
         }
-    
         response = requests.get('https://api-v3.mbta.com/vehicles/{}'.format(bus_id), params=payload)
     
         bus_data = {

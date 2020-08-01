@@ -46,7 +46,9 @@ class GMapsUtil:
             if response.status_code == 200:
                 return response.json()['routes'][0]['legs'][0]['duration_in_traffic'].get('value')
             else:
-                print('Non-200 status code when requesting to the GMaps API:', response.status_code)
+                print('Non-200 status code in GMaps API response:', response.status_code)
+                print('Response json:')
+                print(response.json())
 
         else:
             print('No waypoints set for rte{} direction {}'.format(route_id, direction_id))
