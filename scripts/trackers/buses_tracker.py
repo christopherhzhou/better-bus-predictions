@@ -42,7 +42,8 @@ class BusesTracker:
                 self.buses.pop(bus.bus_id)
                 self.__bus_trackers.remove(bus)
 
-                print('BusesTracker: Bus moved to error list')
+                print(f'BusesTracker: Bus {bus.bus_id} moved to error list')
+                print('----- ERROR RESOLVED -----')
 
     def check_for_departing_buses(self):
         new_buses = BusDataUtil.get_departing_buses(self.origin_terminus, self.route, self.direction)
@@ -59,7 +60,9 @@ class BusesTracker:
         for bus_id in list(self.__error_dict):
             if self.__error_dict.get(bus_id) < time_now:
                 self.__error_dict.pop(bus_id)
+                print('--------------------')
                 print(f'Removing bus {bus_id} from error dict')
+                print('--------------------')
 
     def get_bus_ids(self):
         return self.buses.keys()

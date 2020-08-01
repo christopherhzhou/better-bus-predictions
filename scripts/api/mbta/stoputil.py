@@ -29,15 +29,34 @@ class BusStopUtil:
             str: Full name of the stop.
 
         """
-        payload = {'api_key': key}
-        response = requests.get('https://api-v3.mbta.com/stops/{}'.format(stop_id), params=payload)
+        stop_id = str(stop_id)
 
-        if response.status_code == 200:
-            return response.json()['data']['attributes']['name']
-        elif response.status_code == 404:
-            print('404: Invalid stop ID')
+        file_path = Path(__file__).parent.resolve() / 'constants' / 'stop_names.json'
+        with open(file_path, 'r') as f:
+            contents = f.read()
+        stops_dict = json.loads(contents)
+
+        if stop_id in stops_dict:
+            return stops_dict.get(stop_id)
+
         else:
-            print('There was an error retrieving stop info')
+            payload = {'api_key': key}
+            response = requests.get('https://api-v3.mbta.com/stops/{}'.format(stop_id), params=payload)
+
+            if response.status_code == 200:
+                stop_name = response.json()['data']['attributes']['name']
+
+                print('\nSaving name of stop {name} (id {id})...\n'.format(name=stop_name, id=stop_id))
+
+                stops_dict[stop_id] = stop_name
+                with open(file_path, 'w') as f:
+                    f.write(json.dumps(stops_dict, indent=4))
+
+                return stop_name
+            elif response.status_code == 404:
+                print('404: Invalid stop ID')
+            else:
+                print('There was an error retrieving stop info')
 
     @staticmethod
     def get_stop_coords(stop_id):

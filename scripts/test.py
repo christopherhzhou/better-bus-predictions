@@ -5,5 +5,7 @@ from scripts.api.other.weatherutil import WeatherUtil
 
 from scripts.trackers.master_buses_tracker import MasterBusesTracker
 
-if __name__ == '__main__':
-    master_buses_tracker = MasterBusesTracker(['1','34','39'])
+# if __name__ == '__main__':
+    # master_buses_tracker = MasterBusesTracker(['34','39'])
+    # master_buses_tracker.run()
+

@@ -25,11 +25,15 @@ class BusTracker:
 
         self.__error_strikes = 0
 
-        self.__origin_stop_distance_threshold = StopDistanceThresholds.get(self.origin_terminus) if StopDistanceThresholds.get(self.origin_terminus) else 80
-        self.__dest_stop_distance_threshold = StopDistanceThresholds.get(self.dest_terminus) if StopDistanceThresholds.get(self.dest_terminus) else 80
+        self.__origin_stop_distance_threshold = StopDistanceThresholds.get(self.origin_terminus) \
+            if StopDistanceThresholds.get(self.origin_terminus) else 80
+
+        self.__dest_stop_distance_threshold = StopDistanceThresholds.get(self.dest_terminus) \
+            if StopDistanceThresholds.get(self.dest_terminus) else 80
 
         bus_data = BusDataUtil.get_bus_data(bus_id)
-        if BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus, distance_threshold=self.__origin_stop_distance_threshold):
+        if BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus,
+                                    distance_threshold=self.__origin_stop_distance_threshold):
             self.status = 'AT_ORIGIN_TERMINUS'
         else:
             self.status = 'SOON_ARRIVING_ORIGIN_TERMINUS'
@@ -41,7 +45,8 @@ class BusTracker:
             'stops': {}
         }
 
-        print('rte{rte}: now tracking bus with ID {bid}, trip ID {tid}, status {sts}'.format(rte=self.route_id, bid=bus_id, tid=trip_id, sts=self.status))
+        print(f'rte{self.route_id}, d{self.direction_id}: now tracking bus with ID {bus_id}, trip ID {trip_id}'
+              f', {self.status}')
 
     def update(self, bus_data):
         if bus_data:
@@ -51,7 +56,7 @@ class BusTracker:
                 self.status = 'AT_ORIGIN_TERMINUS'
 
                 # print info
-                print(f'{self.bus_id} now {self.status}')
+                print(f'{self.bus_id} now at origin terminus - {BusStopUtil.get_stop_name(self.origin_terminus)}')
 
             # if bus is known to be at origin terminus but is no longer near origin terminus...
             elif self.status == 'AT_ORIGIN_TERMINUS' and not BusStopUtil.is_near_stop(bus_data.get('latitude'), bus_data.get('longitude'), self.origin_terminus, distance_threshold=self.__origin_stop_distance_threshold):
@@ -67,12 +72,13 @@ class BusTracker:
                 self.data['currentWeather'] = WeatherUtil.get_weather_at_stop(self.origin_terminus)
 
                 # print info
-                print('-------------------')
-                print(f'ROUTE {self.route_id} BUS {self.bus_id} NOW DEPARTING ORIGIN STOP')
+                print('-------- DEPARTING ORIGIN STOP --------')
+                print(f'rte{self.route_id} bus {self.bus_id} departing  origin terminus - {BusStopUtil.get_stop_name(self.origin_terminus)}')
                 print(f'GMaps estimate for {self.bus_id}:', self.data.get('gmapsEstimate'))
                 print(f'Weather at {self.origin_terminus}, origin stop for {self.bus_id}:',
                       self.data.get('currentWeather'))
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
+                print('-------------------\n')
 
             # if bus is in transit...
             elif self.status == 'IN_TRANSIT':
@@ -92,17 +98,18 @@ class BusTracker:
                 # to be at according to the API
                 elif self.__stops[self.__last_at_stop_idx] != at_stop and self.__stops[self.__last_at_stop_idx + 1] != at_stop:
 
-                    if at_stop is not None and at_stop not in self.__stops:
+                    if at_stop not in self.__stops:
                         print(f'Bus {self.bus_id} is at {BusStopUtil.get_stop_name(at_stop)}, which is not on the list '
-                              f'of stops for this trip.')
+                              f'of stops for this trip on route {self.route_id}, direction {self.direction_id}.')
                         print(f'Setting bus {self.bus_id} status to ERROR')
                         self.status = 'ERROR'
                         return
 
                     # if this code begins to execute, it already means a rare error has occurred and the bus was not
                     # detected to have been near a stop
-                    print('---- STOP SKIPPED - INFO BELOW ----')
+                    print('-------- STOP SKIPPED --------')
                     self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
+                    print('---- STOP SKIP INFO ----')
                     print('API determined nearest stop:', BusStopUtil.get_stop_name(at_stop))
                     print('Known last-at stop:', BusStopUtil.get_stop_name(self.__stops[self.__last_at_stop_idx]))
 
@@ -117,7 +124,6 @@ class BusTracker:
                                 self.data['stops'][at_stop] = {
                                     'arrived': bus_data['updated_at']
                                 }
-                                print('Last skipped stop is {}, skip error resolved'.format(BusStopUtil.get_stop_name(self.__stops[stop_idx - 1])))
 
                             self.__last_at_stop_idx = stop_idx - 1
                             print('Last-at stop is now registered as', BusStopUtil.get_stop_name(self.__stops[self.__last_at_stop_idx]))
@@ -130,11 +136,12 @@ class BusTracker:
                                 self.data['stops'][self.dest_terminus] = {
                                     'arrived': bus_data['updated_at']
                                 }
-                                print('Bus skipped to destination terminus {}, skip error resolved'.format(at_stop))
+                                print(f'Bus skipped to destination terminus {at_stop}, skip error resolved')
                                 
                             else:
                                 self.status = 'IN_TRANSIT_TO_DEST'
-                                print('Bus skipped to be in transit to destination terminus {}, skip error resolved'.format(at_stop))
+                                print(f'Bus skipped to be in transit to destination terminus {at_stop}'
+                                      f', skip error resolved')
 
                             print('-----------------------------------\n')
                             break
@@ -153,8 +160,10 @@ class BusTracker:
                     'arrived': bus_data['updated_at']
                 }
                 self.data['arriveDest'] = bus_data['updated_at']
-                
+
+                print('----- AT DESTINATION -----')
                 self.__print_info(bus_data.get('latitude'), bus_data.get('longitude'), bus_data['updated_at'])
+                print('----- AT DESTINATION -----\n')
 
         else:
             print(f'Received None for bus {self.bus_id} data')
@@ -170,4 +179,4 @@ class BusTracker:
     def __print_info(self, bus_lat, bus_long, updated_at):
         print(f'rte{self.route_id}, bID: {self.bus_id}, status {self.status}')
         print('timestamp:', updated_at)
-        print(f'location: https://www.google.com/maps/search/?api=1&query={bus_lat},{bus_long}\n')
+        print(f'location: https://www.google.com/maps/search/?api=1&query={bus_lat},{bus_long}')

@@ -9,6 +9,8 @@ from scripts.trackers.constants.route_origin_stops import RouteOriginStops
 class MasterBusesTracker:
 
     def __init__(self, routes):
+        print('Starting the master buses tracker....\n')
+
         self.route_trackers = {}
 
         for route in routes:
@@ -18,11 +20,13 @@ class MasterBusesTracker:
             else:
                 print('Could not find information on route', route)
 
+        print()
+
         # first value is number of seconds between each route-direction's check for new buses
         # second value is the total number of these route-directions (each route has two directions, 0 and 1)
         # third value is how many seconds between each update
         self.__sleep_duration = 2
-        self.__update_cycles = 300 / len(self.route_trackers.keys()) / self.__sleep_duration
+        self.__update_cycles = int(300 / len(self.route_trackers.keys()) / self.__sleep_duration)
 
     def run(self):
         while True:
@@ -35,7 +39,7 @@ class MasterBusesTracker:
 
                 all_buses_data = BusDataUtil.get_buses_data(all_bus_ids)
 
-                for _ in self.__update_cycles:
+                for _ in range(self.__update_cycles):
                     for tracker_key in self.route_trackers.keys():
                         self.route_trackers[tracker_key].update(all_buses_data)
                     sleep(self.__sleep_duration)

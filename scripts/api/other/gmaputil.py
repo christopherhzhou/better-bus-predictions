@@ -12,7 +12,7 @@ class GMapsUtil:
     @staticmethod
     def get_gmaps_estimate(route_id, direction_id):
         route_id = str(route_id)
-        direction_id = int(direction_id)
+        direction_id = str(direction_id)
 
         # the waypoints are, by default, in outbound order
         file_path = Path(__file__).parent.resolve() / 'constants' / 'waypoints.json'
@@ -23,10 +23,7 @@ class GMapsUtil:
         if route_id in waypoints_dict:
             waypoints_coords = [BusStopUtil.get_stop_coords(waypoint)
                                 if type(waypoint) == str else (waypoint[0], waypoint[1])
-                                for waypoint in waypoints_dict.get(route_id)]
-
-            if direction_id == 1:
-                waypoints_coords = list(reversed(waypoints_coords))
+                                for waypoint in waypoints_dict[route_id].get(direction_id)]
 
             origin_lat, origin_long = waypoints_coords[0]
             dest_lat, dest_long = waypoints_coords[-1]
