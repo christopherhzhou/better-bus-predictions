@@ -19,7 +19,6 @@ class MasterBusesTracker:
                 self.route_trackers[f'r{route}-d1'] = BusesTracker(RouteOriginStops[route]['1'], route, '1')
             else:
                 print('Could not find information on route', route)
-
         print()
 
         # first value is number of seconds between each route-direction's check for new buses
@@ -37,9 +36,8 @@ class MasterBusesTracker:
                     for bus_id in self.route_trackers[tracker_key].get_bus_ids():
                         all_bus_ids.append(bus_id)
 
-                all_buses_data = BusDataUtil.get_buses_data(all_bus_ids)
-
                 for _ in range(self.__update_cycles):
+                    all_buses_data = BusDataUtil.get_buses_data(all_bus_ids)
                     for tracker_key in self.route_trackers.keys():
                         self.route_trackers[tracker_key].update(all_buses_data)
                     sleep(self.__sleep_duration)
