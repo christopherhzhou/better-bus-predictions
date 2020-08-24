@@ -6,7 +6,7 @@ and machine learning. However, in order to train a machine learning model, you m
 first collect data. That is the step that I am working on right now, and is the current focus of
 this program.
 
-This program is designed to handle virtually any kind of error that may occur from long-polling
+This program is designed to handle virtually any kind of error that may occur from polling
 data from an API, so you could begin running the "record.py" script and it should never
 fail or break until you choose to terminate the script.
 
