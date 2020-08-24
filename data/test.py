@@ -1,3 +1,10 @@
 from scripts.api.other.gmaputil import GMapsUtil
+import time
+start_time = time.time()
 
-print(GMapsUtil.get_gmaps_estimate('39', '1'))
+list = []
+for i in range(200000):
+    list.append({i*200/3:'hello!'})
+
+print(list)
+print("--- %s seconds ---" % (time.time() - start_time))
