@@ -119,7 +119,7 @@ class BusStopUtil:
             bool: True if bus is near stop, False otherwise.
 
         """
-        if stop_id:
+        if stop_id and bus_latitude and bus_longitude:
             bus_coords = (float(bus_latitude), float(bus_longitude))
             stop_coords = BusStopUtil.get_stop_coords(stop_id)
 
